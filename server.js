@@ -13,6 +13,17 @@ const wss = new WebSocket.Server({ server });
 let clientes = [];
 
 wss.on('connection', (socket) => {
+  // Si ya hay 2 conectados (por ejemplo, restos de una sesion anterior
+  // que no se cerro bien), sacamos al mas viejo para dejar lugar
+  if (clientes.length >= 2) {
+    const viejo = clientes.shift();
+    try {
+      viejo.close();
+    } catch (e) {
+      // no pasa nada si ya estaba cerrado
+    }
+  }
+
   console.log('Nueva conexión establecida. Total conectados:', clientes.length + 1);
 
   clientes.push(socket);
@@ -47,4 +58,3 @@ wss.on('connection', (socket) => {
 server.listen(PORT, () => {
   console.log(`Servidor de señalización escuchando en el puerto ${PORT}`);
 });
-
