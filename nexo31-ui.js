@@ -1,13 +1,8 @@
-/* NEXO 3.1 UI activation. No toca nexo-salas ni consulta Supabase directamente. */
+/* NEXO 3.1.1 loader. Never touches nexo-salas. */
 (function(){
-  function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});}
-  function bind(){
-    document.querySelectorAll('.sidebtn').forEach(btn=>{
-      const t=(btn.textContent||'').toLowerCase();
-      if(t.includes('contactos'))btn.onclick=()=>go('contactos');
-      else if(t.includes('invitaciones'))btn.onclick=()=>go('invitaciones');
-      else if(t.includes('historial'))btn.onclick=()=>go('nexo31-historial');
-    });
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind,{once:true});else bind();
+  'use strict';
+  if(window.__NEXO311_LOADED)return;
+  window.__NEXO311_LOADED=true;
+  const load=()=>{const s=document.createElement('script');s.src='./nexo311.js?v=3.1.1';s.async=false;document.head.appendChild(s)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
