@@ -1,0 +1,85 @@
+name: NEXO 3.0 Supabase integration
+
+on:
+  push:
+    branches: [nexo-3.0]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: ${{ github.event.head_commit.message != 'NEXO 3.0: integrar Supabase Auth y salas' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Integrar Supabase Auth y salas permanentes
+        env:
+          SUPABASE_URL: https://bqrudacynjwlragoiero.supabase.co
+          SUPABASE_KEY: sb_publishable_tcmvkPhM5eJlUZUUjWWApQ_oBExekcr
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, os
+
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8')
+
+          t=t.replace('<title>NEXO 2.0 — Conectá sin fricción</title>', '<title>NEXO 3.0 — Tu conexión, tu Nexo</title>')
+          t=t.replace('NEXO 2.0 · comunicación sin fricción', 'NEXO 3.0 · tu conexión, tu Nexo')
+          t=t.replace('Perfil local de demostración. Más adelante puede conectarse a un backend real para usuarios, avatares, contactos y salas persistentes.', 'Perfil NEXO conectado a tu cuenta. Próximamente podrá incluir avatar, contactos, salas, invitaciones y actividad.')
+          t=t.replace('El dashboard aparece para usuarios registrados y guarda datos de prueba en el navegador.', 'El dashboard se sincroniza con tu cuenta NEXO y la base de datos.')
+
+          if '@supabase/supabase-js' not in t:
+              t=t.replace('<script>\nconst hashParams', '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script>\nconst hashParams', 1)
+
+          a=t.index('<div id="authModal" class="modal hidden">')
+          b=t.index('</div>\n\n<div id="joinModal"', a)+len('</div>')
+          auth='''<div id="authModal" class="modal hidden">\n  <div class="modal-box card">\n    <div class="modal-head"><h3 id="authTitle">Ingresar a NEXO</h3><button class="close" onclick="closeModal(\'authModal\')">×</button></div>\n    <div style="display:flex;gap:8px;margin-bottom:18px">\n      <button id="loginTab" class="btn primary" type="button" onclick="setAuthMode(\'login\')">Iniciar sesión</button>\n      <button id="registerTab" class="btn ghost" type="button" onclick="setAuthMode(\'register\')">Crear cuenta</button>\n    </div>\n    <form id="loginForm" class="form" onsubmit="login(event)">\n      <label>Email<input id="email" class="input" type="email" autocomplete="email" placeholder="tu@email.com" required></label>\n      <label>Contraseña<input id="password" class="input" type="password" autocomplete="current-password" placeholder="••••••••" required></label>\n      <button class="btn primary" type="submit">Iniciar sesión →</button>\n      <div class="form-note">Tu sesión se gestiona mediante Supabase Auth.</div>\n    </form>\n    <form id="registerForm" class="form hidden" onsubmit="register(event)">\n      <label>Nombre<input id="registerName" class="input" type="text" autocomplete="name" placeholder="Tu nombre" required></label>\n      <label>Email<input id="registerEmail" class="input" type="email" autocomplete="email" placeholder="tu@email.com" required></label>\n      <label>Contraseña<input id="registerPassword" class="input" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres" required></label>\n      <button class="btn primary" type="submit">Crear mi cuenta →</button>\n      <div class="form-note">Podés entrar a una sala como invitado sin registrarte. La cuenta sirve para administrar tus salas, contactos e historial.</div>\n    </form>\n  </div>\n</div>'''
+          t=t[:a]+auth+t[b:]
+
+          t=t.replace("const DEMO_EMAIL='demo@nexo.app';\nconst DEFAULT_VIDEO_URL='https://rodrigomidon04-ui.github.io/nexo-salas/';\nconst DEMO_PASS='Nexo2026!';", "const DEFAULT_VIDEO_URL='https://rodrigomidon04-ui.github.io/nexo-salas/';\nconst SUPABASE_URL='"+os.environ['SUPABASE_URL']+"';\nconst SUPABASE_PUBLISHABLE_KEY='"+os.environ['SUPABASE_KEY']+"';\nconst supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});")
+
+          start=t.index('let state=')
+          end=t.index('function scrollToId',start)
+          state='''let state={user:null,room:sharedRoom||localStorage.getItem('nexoRoom')||'',videoUrl:localStorage.getItem('nexoVideoUrl')||DEFAULT_VIDEO_URL,profile:null};\nif(sharedRoom){state.room=sharedRoom;localStorage.setItem('nexoRoom',sharedRoom);}\nlet authMode='login';\nfunction setAuthMode(mode){authMode=mode;const loginMode=mode==='login';document.getElementById('authTitle').textContent=loginMode?'Ingresar a NEXO':'Crear cuenta NEXO';document.getElementById('loginForm').classList.toggle('hidden',!loginMode);document.getElementById('registerForm').classList.toggle('hidden',loginMode);document.getElementById('loginTab').classList.toggle('primary',loginMode);document.getElementById('loginTab').classList.toggle('ghost',!loginMode);document.getElementById('registerTab').classList.toggle('primary',!loginMode);document.getElementById('registerTab').classList.toggle('ghost',loginMode);}\n\nasync function loadUserData(user){if(!user){state.user=null;state.profile=null;return;}state.user={id:user.id,email:user.email,name:user.user_metadata?.display_name||user.email?.split('@')[0]||'Usuario NEXO'};const {data:profile}=await supabase.from('profiles').select('*').eq('id',user.id).maybeSingle();if(profile){state.profile=profile;if(profile.display_name)state.user.name=profile.display_name;}let {data:rooms}=await supabase.from('rooms').select('*').eq('owner_id',user.id).eq('is_personal',true).limit(1);let room=rooms?.[0];if(!room){const key='nexo-'+user.id.replaceAll('-','').slice(0,12);const result=await supabase.from('rooms').insert({owner_id:user.id,room_key:key,name:'Mi sala NEXO',is_personal:true}).select().single();room=result.data;}if(room){state.room=room.room_key;localStorage.setItem('nexoRoom',state.room);}}\n\nasync function usePrimaryRoom(){if(!state.user?.id){openAuth();showToast('✓ Creá una cuenta para tener una sala personal');return;}await loadUserData({id:state.user.id,email:state.user.email,user_metadata:{display_name:state.user.name}});document.getElementById('roomKey').textContent=state.room;document.getElementById('joinKey').value=state.room;document.getElementById('dashRoom').textContent=state.room;showToast('✓ Tu sala personal está lista');}\n\nasync function generateRoom(){if(!state.user?.id){openAuth();showToast('✓ Ingresá o creá una cuenta para administrar salas');return;}const key=createUniqueRoom(state.user.name||'usuario');const {data,error}=await supabase.from('rooms').insert({owner_id:state.user.id,room_key:key,name:'Nueva sala NEXO',is_personal:false}).select().single();if(error){showToast('✕ No se pudo crear la sala');return;}state.room=data.room_key;localStorage.setItem('nexoRoom',state.room);document.getElementById('roomKey').textContent=state.room;document.getElementById('joinKey').value=state.room;document.getElementById('dashRoom').textContent=state.room;showToast('✓ Nueva sala creada y guardada');}\n\n'''
+          t=t[:start]+state+t[end:]
+
+          # Remove old demo login functions and replace with Supabase auth.
+          s=t.index('function login(e)')
+          e=t.index('function saveSettings',s)
+          authjs='''async function login(e){e.preventDefault();const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error){showToast('✕ '+error.message);return;}await loadUserData(data.user);closeModal('authModal');updateUI();showToast('✓ Sesión iniciada');}\nasync function register(e){e.preventDefault();const display_name=document.getElementById('registerName').value.trim();const email=document.getElementById('registerEmail').value.trim();const password=document.getElementById('registerPassword').value;const redirectTo=window.location.origin+window.location.pathname;const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name},emailRedirectTo:redirectTo}});if(error){showToast('✕ '+error.message);return;}if(data.session&&data.user){await loadUserData(data.user);closeModal('authModal');updateUI();showToast('✓ Cuenta creada');}else{closeModal('authModal');showToast('✓ Revisá tu email para confirmar la cuenta');}}\nasync function logout(){await supabase.auth.signOut();state.user=null;state.profile=null;state.room=sharedRoom||'';localStorage.removeItem('nexoUser');updateUI();showToast('✓ Sesión cerrada');}\n'''
+          t=t[:s]+authjs+t[e:]
+
+          s=t.index('function updateUI()')
+          e=t.index('function filterRooms',s)
+          ui='''function updateUI(){const logged=!!state.user;document.getElementById('dashLocked').classList.toggle('hidden',logged);document.getElementById('dashContent').classList.toggle('hidden',!logged);const nav=document.getElementById('loginNav');if(logged){const name=state.user.name,mail=state.user.email,initial=(name||'N').charAt(0).toUpperCase();document.getElementById('sideName').textContent=name;document.getElementById('sideMail').textContent=mail;document.getElementById('welcomeName').textContent='Hola, '+name+' 👋';document.getElementById('sideAvatar').textContent=initial;document.getElementById('bigAvatar').textContent=initial;document.getElementById('profileAvatar').textContent=initial;document.getElementById('profileName').textContent=name;document.getElementById('profileMail').textContent=mail;document.getElementById('dashRoom').textContent=state.room||'—';document.getElementById('roomKey').textContent=state.room||'—';nav.textContent='Mi cuenta';nav.onclick=()=>scrollToId('dashboard');}else{nav.textContent='Ingresar';nav.onclick=openAuth;document.getElementById('roomKey').textContent=state.room||'nexo-invitado';document.getElementById('dashRoom').textContent='—';}}\n'''
+          t=t[:s]+ui+t[e:]
+
+          # Replace final initialization block.
+          t=re.sub(r"if\(state\.user\)\{.*?updateUI\(\);", "setAuthMode('login'); if(!state.room){state.room='nexo-invitado-'+Math.floor(1000+Math.random()*9000);} document.getElementById('roomKey').textContent=state.room; document.getElementById('joinKey').value=state.room; renderRooms(roomData); updateUI(); (async()=>{const {data:{session}}=await supabase.auth.getSession(); if(session?.user){await loadUserData(session.user); updateUI();} supabase.auth.onAuthStateChange(async(event,session)=>{if(session?.user){await loadUserData(session.user);updateUI();}else if(event==='SIGNED_OUT'){state.user=null;state.profile=null;updateUI();}});})();", t, count=1, flags=re.S)
+
+          p.write_text(t,encoding='utf-8')
+          PY
+
+      - name: Validar JavaScript embebido
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',t,re.S)
+          Path('/tmp/nexo-inline.js').write_text(scripts[-1],encoding='utf-8')
+          PY
+          node --check /tmp/nexo-inline.js
+
+      - name: Commit integrado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "NEXO 3.0: integrar Supabase Auth y salas"
+          git push origin HEAD:nexo-3.0

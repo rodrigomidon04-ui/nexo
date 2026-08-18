@@ -1,0 +1,52 @@
+name: NEXO 3.0 UI navigation fix
+
+on:
+  push:
+    branches: [nexo-3.0]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-ui:
+    if: ${{ github.event.head_commit.message != 'NEXO 3.0: navegación de cuenta' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Añadir navegación y salida de cuenta
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          t = p.read_text(encoding='utf-8')
+          old = '<div class="nav"><div class="logo">NEXO</div><div class="actions"><button class="btn" id="authBtn">Ingresar</button></div></div>'
+          new = '<div class="nav"><div class="logo"><a href="./" style="color:inherit;text-decoration:none">NEXO</a></div><div class="actions"><button class="btn" id="homeBtn" onclick="window.scrollTo({top:0,behavior:\'smooth\'})">Inicio</button><button class="btn" id="authBtn">Ingresar</button></div></div>'
+          t = t.replace(old, new, 1)
+          old2 = '<div class="actions"><span>Sala personal: <strong id="personalRoom">—</strong></span></div>'
+          new2 = '<div class="actions"><span>Sala personal: <strong id="personalRoom">—</strong></span><button class="btn" id="logoutCard">Cerrar sesión</button></div>'
+          t = t.replace(old2, new2, 1)
+          marker = "$('authBtn').onclick=async()=>{"
+          inject = "$('logoutCard').onclick=async()=>{if(u){await sb.auth.signOut();u=null;render();toast('✓ Sesión cerrada')}};"
+          if marker in t and "logoutCard').onclick" not in t:
+              t = t.replace(marker, inject + marker, 1)
+          p.write_text(t, encoding='utf-8')
+          PY
+      - name: Validar HTML y JavaScript embebido
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          t=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',t,re.S)
+          Path('/tmp/nexo-inline.js').write_text(scripts[-1],encoding='utf-8')
+          PY
+          node --check /tmp/nexo-inline.js
+      - name: Commit cambios
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "NEXO 3.0: navegación de cuenta"
+          git push origin HEAD:nexo-3.0

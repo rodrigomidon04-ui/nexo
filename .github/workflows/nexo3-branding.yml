@@ -1,0 +1,62 @@
+name: NEXO 3.0 branding
+
+on:
+  push:
+    branches: [nexo-3.0]
+
+permissions:
+  contents: write
+
+jobs:
+  branding:
+    if: ${{ github.event.head_commit.message != 'NEXO 3.0: restaurar identidad visual y favicon' && github.event.head_commit.message != 'NEXO 3.0: branding aplicado' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restaurar cara NEXO y favicon
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8')
+
+          face='''<svg class="nexo-face-svg" viewBox="0 0 100 100" aria-label="NEXO"><rect x="8" y="14" width="84" height="72" rx="23" fill="#0e1620" stroke="#4dd8ff" stroke-width="5"/><ellipse cx="35" cy="45" rx="7" ry="11" fill="#4dd8ff"><animate attributeName="ry" values="11;1;11" dur="4.2s" repeatCount="indefinite" keyTimes="0;.5;1"/></ellipse><ellipse cx="65" cy="45" rx="7" ry="11" fill="#4dd8ff"><animate attributeName="ry" values="11;1;11" dur="4.2s" repeatCount="indefinite" keyTimes="0;.5;1" begin=".15s"/></ellipse><path d="M33 65 Q50 80 67 65" fill="none" stroke="#4dd8ff" stroke-width="5" stroke-linecap="round"/></svg>'''
+
+          css='''.nexo-face-svg{width:100%;height:100%;display:block}.logo-mark{overflow:hidden;padding:4px;background:#0e1620;box-shadow:0 0 24px rgba(77,216,255,.16)}.nav-face{width:20px;height:20px;display:inline-grid;place-items:center;vertical-align:-5px;margin-right:5px}.hero-face{width:158px;height:158px;margin:0 auto 24px;filter:drop-shadow(0 0 34px rgba(77,216,255,.34));animation:nexoFloat 4s ease-in-out infinite}.hero-face .nexo-face-svg{width:100%;height:100%}@keyframes nexoFloat{50%{transform:translateY(-10px)}}'''
+
+          if 'nexo-face-svg' not in t:
+              t=t.replace('</style>', css+'</style>', 1)
+
+          favicon='<link rel="icon" type="image/svg+xml" href="/nexo-favicon.svg">'
+          if '/nexo-favicon.svg' not in t:
+              t=t.replace('</title>', '</title>'+favicon, 1)
+
+          old_logo='<span class="logo-mark">N</span>NEXO'
+          new_logo='<span class="logo-mark">'+face+'</span>NEXO'
+          t=t.replace(old_logo,new_logo,1)
+
+          old_inicio='<a href="#inicio">Inicio</a>'
+          new_inicio='<a href="#inicio"><span class="nav-face">'+face+'</span>Inicio</a>'
+          t=t.replace(old_inicio,new_inicio,1)
+
+          hero_anchor='<header class="hero" id="inicio"><div class="container hero-inner">'
+          hero_replacement='<header class="hero" id="inicio"><div class="container hero-inner"><div class="hero-face">'+face+'</div>'
+          if 'class="hero-face"' not in t:
+              t=t.replace(hero_anchor,hero_replacement,1)
+
+          p.write_text(t,encoding='utf-8')
+          
+          favicon_svg='''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect x="4" y="4" width="120" height="120" rx="30" fill="#0e1620" stroke="#4dd8ff" stroke-width="6"/><ellipse cx="47" cy="58" rx="10" ry="15" fill="#4dd8ff"><animate attributeName="ry" values="15;2;15" dur="4.2s" repeatCount="indefinite" keyTimes="0;.5;1"/></ellipse><ellipse cx="81" cy="58" rx="10" ry="15" fill="#4dd8ff"><animate attributeName="ry" values="15;2;15" dur="4.2s" repeatCount="indefinite" keyTimes="0;.5;1" begin=".15s"/></ellipse><path d="M39 84 Q64 102 89 84" fill="none" stroke="#4dd8ff" stroke-width="7" stroke-linecap="round"/></svg>'''
+          Path('nexo-favicon.svg').write_text(favicon_svg,encoding='utf-8')
+          PY
+
+      - name: Commit branding
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html nexo-favicon.svg
+          git diff --cached --quiet || git commit -m "NEXO 3.0: branding aplicado"
+          git push origin HEAD:nexo-3.0

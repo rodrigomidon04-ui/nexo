@@ -1,0 +1,45 @@
+name: NEXO 3.1 integration
+
+on:
+  push:
+    branches: [nexo-3.1]
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: ${{ github.event.head_commit.message != 'NEXO 3.1: integrar módulo social' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Integrar nexo31.js
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8')
+          tag='<script src="/nexo31.js"></script>'
+          if tag not in t:
+              marker='</body>'
+              if marker not in t:
+                  raise SystemExit('No se encontró </body> en index.html')
+              t=t.replace(marker, tag+'\n'+marker, 1)
+              p.write_text(t, encoding='utf-8')
+          PY
+
+      - name: Validar presencia
+        run: |
+          grep -Fq '<script src="/nexo31.js"></script>' index.html
+          test -s nexo31.js
+
+      - name: Commit integrado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "NEXO 3.1: integrar módulo social"
+          git push origin HEAD:nexo-3.1
