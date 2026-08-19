@@ -1,4 +1,4 @@
-/* NEXO 04: keep Contacts, Invitations and Ecosystem immediately under their own entry. */
+/* NEXO 04: compact internal content for Mi Nexo members. */
 (function(){
   'use strict';
   if(window.__NEXOMINEXOMEMBERS)return;
@@ -25,8 +25,7 @@
     const card=document.getElementById('nexoWorkspaceCard');
     if(!card)return;
 
-    const map=['contactos','invitaciones','ecosistema'];
-    map.forEach(id=>{
+    ['contactos','invitaciones','ecosistema'].forEach(id=>{
       const sec=document.getElementById(id);
       if(!sec)return;
 
@@ -35,19 +34,17 @@
         panel=document.createElement('div');
         panel.className='nexo-mi-nexo-content';
         panel.dataset.content=id;
-        panel.hidden=true;
-        panel.style.display='none';
       }
 
       if(sec.parentElement!==panel)panel.appendChild(sec);
       sec.hidden=false;
       sec.style.display='block';
       sec.style.margin='0';
-      sec.querySelector('.section-head')?.setAttribute('style','display:none');
+      const head=sec.querySelector('.section-head');
+      if(head)head.style.display='none';
 
       const button=card.querySelector(`[data-final-target="${id}"]`);
       if(button){
-        panel.dataset.content=id;
         button.dataset.panelTarget=id;
         button.after(panel);
       }else if(panel.parentElement!==card){
@@ -86,7 +83,7 @@
 
     document.querySelectorAll('#nexoFinalMenu [data-final-menu]').forEach(menuButton=>{
       const target=menuButton.dataset.finalMenu;
-      if(!map.includes(target) || menuButton.dataset.panelBound==='1')return;
+      if(!['contactos','invitaciones','ecosistema'].includes(target) || menuButton.dataset.panelBound==='1')return;
       menuButton.dataset.panelBound='1';
       menuButton.addEventListener('click',e=>{
         e.preventDefault();
