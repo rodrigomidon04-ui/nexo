@@ -12,6 +12,17 @@
     return true;
   }
 
+  function openSessionsPanel(){
+    const panel=$('nexoSessionsPanel');
+    const entry=$('nexoSesionesEntry');
+    if(!panel||!entry)return false;
+    panel.hidden=false;
+    panel.style.display='block';
+    entry.classList.add('active');
+    requestAnimationFrame(()=>panel.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}));
+    return true;
+  }
+
   function prepare(){
     const salas=$('salas'), espacios=$('explorar'), miCentro=$('dashboard');
     const advanced=$('nexo33134'), chats=$('nexo33'), perfil=$('perfil'), historial=$('historial');
@@ -34,7 +45,53 @@
     }
 
     const workspace=document.createElement('section'); workspace.id='nexoWorkspace';
-    workspace.innerHTML=`<div class="container"><div class="nexo-workspace-head"><div><div class="tag">04 — Mi Nexo</div><h2>Conectividad</h2></div><p class="muted">Sesiones, contactos, invitaciones y ecosistema.</p></div><div class="nexo-workspace-card" id="nexoWorkspaceCard"><button type="button" class="nexo-final-link" id="nexoSesionesEntry" data-final-target="sesiones"><span>◌</span><span class="nexo-final-copy"><strong>Sesiones</strong><em>Conversaciones, actividad e historial.</em></span><i>›</i></button><button type="button" class="nexo-final-link" data-final-target="contactos"><span>◎</span><span class="nexo-final-copy"><strong>Contactos</strong><em>Tu red de personas conectadas.</em></span><i>›</i></button><button type="button" class="nexo-final-link" data-final-target="invitaciones"><span>✉</span><span class="nexo-final-copy"><strong>Invitaciones</strong><em>Salas e invitaciones pendientes.</em></span><i>›</i></button><button type="button" class="nexo-final-link" data-final-target="ecosistema"><span>✦</span><span class="nexo-final-copy"><strong>Ecosistema</strong><em>Work, Edu, Care y futuros espacios NEXO.</em></span><i>›</i></button></div></div>`;
+    workspace.innerHTML=`
+      <div class="container">
+        <div class="nexo-workspace-head">
+          <div><div class="tag">04 — Mi Nexo</div><h2>Conectividad</h2></div>
+          <p class="muted">Sesiones, contactos, invitaciones y ecosistema.</p>
+        </div>
+        <div class="nexo-workspace-card" id="nexoWorkspaceCard">
+          <button type="button" class="nexo-final-link" id="nexoSesionesEntry" data-final-target="sesiones">
+            <span>◌</span><span class="nexo-final-copy"><strong>Sesiones</strong><em>Conversaciones, actividad e historial.</em></span><i>›</i>
+          </button>
+          <div id="nexoSessionsPanel" class="nexo-sessions-panel" hidden>
+            <div class="nexo-sessions-head">
+              <div><div class="tag">SESIONES</div><h3>Conversaciones y actividad.</h3></div>
+              <button type="button" class="btn" id="nexoSessionsClose">Cerrar</button>
+            </div>
+            <div class="nexo-sessions-grid">
+              <div class="card nexo-session-card">
+                <div class="tag">CONVERSACIONES</div>
+                <h4>Chats</h4>
+                <p class="muted">Tus conversaciones privadas y de sala viven en NEXO.</p>
+                <button type="button" class="btn primary" id="nexoSessionsChats">Abrir Chats</button>
+              </div>
+              <div class="card nexo-session-card">
+                <div class="tag">ACTIVIDAD</div>
+                <h4>Estado y presencia</h4>
+                <p class="muted">Consultá tu actividad reciente y tu estado dentro de NEXO.</p>
+                <div class="nexo-session-status"><span class="nexo-status-dot"></span><strong id="nexoSessionStatusText">Activo</strong></div>
+              </div>
+              <div class="card nexo-session-card">
+                <div class="tag">HISTORIAL</div>
+                <h4>Sesiones recientes</h4>
+                <p class="muted">Tus llamadas y sesiones recientes se muestran aquí.</p>
+                <div class="nexo-session-empty" id="nexoSessionHistory">Todavía no hay sesiones registradas.</div>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="nexo-final-link" data-final-target="contactos">
+            <span>◎</span><span class="nexo-final-copy"><strong>Contactos</strong><em>Tu red de personas conectadas.</em></span><i>›</i>
+          </button>
+          <button type="button" class="nexo-final-link" data-final-target="invitaciones">
+            <span>✉</span><span class="nexo-final-copy"><strong>Invitaciones</strong><em>Salas e invitaciones pendientes.</em></span><i>›</i>
+          </button>
+          <button type="button" class="nexo-final-link" data-final-target="ecosistema">
+            <span>✦</span><span class="nexo-final-copy"><strong>Ecosistema</strong><em>Work, Edu, Care y futuros espacios NEXO.</em></span><i>›</i>
+          </button>
+        </div>
+      </div>`;
 
     if(chats){
       chats.hidden=false; chats.style.display='block';
@@ -54,18 +111,27 @@
     if(footer)document.body.appendChild(footer);
 
     if(!$('nexo-structure-final-style')){
-      const s=document.createElement('style');s.id='nexo-structure-final-style';s.textContent=`#nexoWorkspace{padding:72px 0 96px}.nexo-workspace-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:24px}.nexo-workspace-head h2{font-size:clamp(38px,5vw,64px);line-height:.95;letter-spacing:-.045em;margin:8px 0}.nexo-workspace-head p{max-width:520px}.nexo-workspace-card{background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}.nexo-final-link{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);padding:20px 22px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer}.nexo-final-link:last-child{border-bottom:0}.nexo-final-link:hover{background:rgba(77,216,255,.045)}.nexo-final-link>span:first-child{width:40px;height:40px;border-radius:13px;background:rgba(77,216,255,.08);color:var(--cyan);display:grid;place-items:center;flex:0 0 auto}.nexo-final-copy{display:block;flex:1;min-width:0}.nexo-final-link strong{display:block;font-size:16px}.nexo-final-link em{display:block;font-style:normal;color:var(--muted);font-size:12px;line-height:1.5;margin-top:3px}.nexo-final-link i{font-style:normal;color:var(--muted);font-size:18px}.nexo-final-link.active{background:rgba(77,216,255,.055)}@media(max-width:900px){.nexo-workspace-head{align-items:start;flex-direction:column}}`;
-      document.head.appendChild(s);
+      const s=document.createElement('style');s.id='nexo-structure-final-style';s.textContent=`
+        #nexoWorkspace{padding:72px 0 96px}
+        .nexo-workspace-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:24px}
+        .nexo-workspace-head h2{font-size:clamp(38px,5vw,64px);line-height:.95;letter-spacing:-.045em;margin:8px 0}
+        .nexo-workspace-head p{max-width:520px}
+        .nexo-workspace-card{background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+        .nexo-final-link{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);padding:20px 22px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer}
+        .nexo-final-link:last-child{border-bottom:0}.nexo-final-link:hover{background:rgba(77,216,255,.045)}
+        .nexo-final-link>span:first-child{width:40px;height:40px;border-radius:13px;background:rgba(77,216,255,.08);color:var(--cyan);display:grid;place-items:center;flex:0 0 auto}
+        .nexo-final-copy{display:block;flex:1;min-width:0}.nexo-final-link strong{display:block;font-size:16px}.nexo-final-link em{display:block;font-style:normal;color:var(--muted);font-size:12px;line-height:1.5;margin-top:3px}.nexo-final-link i{font-style:normal;color:var(--muted);font-size:18px}.nexo-final-link.active{background:rgba(77,216,255,.055)}
+        .nexo-sessions-panel{padding:24px;border-top:1px solid var(--line);background:rgba(255,255,255,.018)}
+        .nexo-sessions-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px}.nexo-sessions-head h3{margin:8px 0 0;font-size:28px;letter-spacing:-.03em}
+        .nexo-sessions-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.nexo-session-card{padding:20px}.nexo-session-card h4{margin:8px 0;font-size:20px}.nexo-session-card p{font-size:12px;line-height:1.5;min-height:42px}.nexo-session-status{display:flex;align-items:center;gap:8px;margin-top:14px}.nexo-status-dot{width:9px;height:9px;border-radius:999px;background:var(--green);display:inline-block}.nexo-session-empty{margin-top:14px;padding:12px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:11px}
+        @media(max-width:900px){.nexo-workspace-head{align-items:start;flex-direction:column}.nexo-sessions-grid{grid-template-columns:1fr}.nexo-sessions-head{align-items:start;flex-direction:column}}
+      `;document.head.appendChild(s);
     }
 
-    const sesionesEntry=$('nexoSesionesEntry');
-    if(sesionesEntry){
-      sesionesEntry.addEventListener('click',e=>{
-        e.preventDefault();
-        sesionesEntry.classList.add('active');
-        center(miCentro);
-      });
-    }
+    const sesionesEntry=$('nexoSesionesEntry'), sessionsPanel=$('nexoSessionsPanel');
+    sesionesEntry?.addEventListener('click',e=>{e.preventDefault();openSessionsPanel();});
+    $('nexoSessionsClose')?.addEventListener('click',e=>{e.preventDefault();sessionsPanel.hidden=true;sessionsPanel.style.display='none';sesionesEntry.classList.remove('active');});
+    $('nexoSessionsChats')?.addEventListener('click',()=>center(chats));
 
     const nav=document.querySelector('.nav .navlinks');
     if(nav){
@@ -79,10 +145,9 @@
       document.addEventListener('click',e=>{if(!nav.contains(e.target))close()});
       nav.querySelectorAll('[data-final-nav]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();close();const map={inicio:'inicio',salas:'salas',espacios:'explorar',micentro:'dashboard',minexo:'nexoWorkspace'};const el=$(map[a.dataset.finalNav]);if(el)center(el);}));
       menu.querySelectorAll('[data-final-menu]').forEach(b=>b.addEventListener('click',e=>{
-        e.preventDefault();
-        close();
+        e.preventDefault();close();
         const key=b.dataset.finalMenu;
-        if(key==='sesiones'){center(sesionesEntry);sesionesEntry?.classList.add('active');return;}
+        if(key==='sesiones'){openSessionsPanel();return;}
         const sec=$(key);
         if(sec){sec.hidden=false;sec.style.display='';center(sec);}
       }));
