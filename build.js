@@ -13,7 +13,8 @@ const scripts = [
   ['nexo-section-order.js?v=4.0-order', '<script src="./nexo-section-order.js?v=4.0-order"></script>'],
   ['nexo-final-order.js?v=4.0-final', '<script src="./nexo-final-order.js?v=4.0-final"></script>'],
   ['nexo-final-structure.js?v=4.1-final', '<script src="./nexo-final-structure.js?v=4.1-final"></script>'],
-  ['nexo-strict-order.js?v=4.2-strict', '<script src="./nexo-strict-order.js?v=4.2-strict"></script>']
+  ['nexo-strict-order.js?v=4.2-strict', '<script src="./nexo-strict-order.js?v=4.2-strict"></script>'],
+  ['nexo-profile-final.js?v=4.3-profile', '<script src="./nexo-profile-final.js?v=4.3-profile"></script>']
 ];
 
 for (const [marker, tag] of scripts) {
