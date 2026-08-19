@@ -1,0 +1,89 @@
+NEXO — PUNTO POSITIVO V3.1
+====================================
+
+TIPO: BACKUP / PUNTO DE RESTAURACION
+FECHA: 2026-08-19
+BRANCH DE RESPALDO: backup/punto-positivo-v3.1
+COMMIT EXACTO DEL CODIGO: 97b40bad1ddd49c7876987086a3763c44a1b9702
+MENSAJE DEL COMMIT: NEXO: actualizar cache-bust del cambio Identidad
+
+IMPORTANTE
+----------
+Este archivo identifica el estado exacto del codigo que se tomo como PUNTO POSITIVO V3.1.
+La copia reproducible completa del codigo esta preservada por Git en el commit indicado arriba y en la rama de respaldo indicada arriba.
+No modificar esta rama de respaldo.
+
+RESTAURACION
+------------
+Para volver exactamente a este estado:
+1. Usar el commit 97b40bad1ddd49c7876987086a3763c44a1b9702.
+2. O utilizar la rama backup/punto-positivo-v3.1.
+3. No modificar NEXO Salas: https://rodrigomidon04-ui.github.io/nexo-salas/
+
+REPOSITORIO
+-----------
+https://github.com/rodrigomidon04-ui/nexo
+
+COMMIT
+------
+https://github.com/rodrigomidon04-ui/nexo/commit/97b40bad1ddd49c7876987086a3763c44a1b9702
+
+PREVIEW
+-------
+https://deploy-preview-5--nexosystem.netlify.app/
+
+ARCHIVOS PRINCIPALES DEL PUNTO POSITIVO
+---------------------------------------
+index.html
+build.js
+netlify.toml
+nexo-favicon.svg
+nexo32.js
+nexo33.js
+nexo33134.js
+nexo-ui-controller.js
+nexo-ui-runtime-fix.js
+nexo-ui-final-adjustments.js
+nexo-ui-nav-alignment.js
+
+CAPA HISTORICA / ARCHIVOS DE RESPALDO PRESENTES EN EL COMMIT
+------------------------------------------------------------
+nexo-04-final-fix.js
+nexo-final-order.js
+nexo-final-structure.js
+nexo-inline-mi-nexo.js
+nexo-layout.js
+nexo-mi-nexo-members-fix.js
+nexo-micentro-fix.js
+nexo-nav-build.js
+nexo-nav-fix.js
+nexo-nav.js
+nexo-navigation-final.js
+nexo-profile-final.js
+nexo-section-order.js
+nexo-sesiones-fix.js
+nexo-strict-order.js
+nexo-structure-final.js
+nexo-ux-fix.js
+
+ESTADO FUNCIONAL TOMADO COMO REFERENCIA
+---------------------------------------
+- NEXO Salas permanece separado e intocable.
+- Barra principal organizada.
+- Mi Nexo alineado en la barra.
+- Submenu de Mi Nexo operativo y anclado a Mi Nexo.
+- 04 — Mi Nexo con Sesiones, Contactos, Invitaciones y Ecosistema.
+- Contenido de Contactos, Invitaciones y Ecosistema dentro de su entrada correspondiente.
+- 03 — Mi Centro mantiene su contenido funcional.
+- Cabecera 03.3.1 / 03.4 retirada del bloque.
+- 05 — Chats mantiene el modulo NEXO 3.3.
+- 00 — Identidad es el identificador previsto para el perfil.
+- Autenticacion y Supabase existentes preservados.
+
+INDICE DE REFERENCIA
+--------------------
+El commit 97b40bad1ddd49c7876987086a3763c44a1b9702 contiene la totalidad del arbol del proyecto en ese instante. Los archivos anteriores y cualquier archivo adicional del repositorio quedan preservados por Git y son recuperables desde el commit.
+
+OBJETIVO DEL BACKUP
+-------------------
+Este punto se considera un estado estable/positivo. Toda modificacion futura debe partir de una copia de este punto y poder volver a el sin tocar NEXO Salas.
