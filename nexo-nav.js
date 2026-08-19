@@ -10,26 +10,30 @@
     <a href="#inicio">Inicio</a>
     <a href="#salas">Salas</a>
     <a href="#explorar">Espacios</a>
-    <button type="button" class="nexo-nav-account" id="nexoNavAccount" aria-expanded="false">Mi Nexo <span class="nexo-chevron">⌄</span></button>
+    <span class="nexo-nav-mi">
+      <a class="nexo-nav-account-link" href="#dashboard">Mi Nexo</a>
+      <button type="button" class="nexo-nav-toggle" id="nexoNavToggle" aria-expanded="false" aria-label="Abrir menú Mi Nexo">⌄</button>
+    </span>
   `;
 
   const style=document.createElement('style');
   style.id='nexo-nav-organizer-style';
   style.textContent=`
     .navlinks{align-items:center;position:relative}
-    .nexo-nav-account{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;padding:8px 0;cursor:pointer;display:inline-flex;gap:5px;align-items:center}
-    .nexo-nav-account:hover,.nexo-nav-account[aria-expanded="true"]{color:var(--text)}
-    .nexo-chevron{font-size:12px;transition:.2s}
-    .nexo-nav-account[aria-expanded="true"] .nexo-chevron{transform:rotate(180deg)}
+    .nexo-nav-mi{display:inline-flex;align-items:center;gap:2px}
+    .nexo-nav-account-link{color:var(--muted);font:inherit;font-size:13px;text-decoration:none;padding:8px 0}
+    .nexo-nav-account-link:hover{color:var(--text)}
+    .nexo-nav-toggle{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;padding:8px 4px;cursor:pointer;display:inline-grid;place-items:center;transition:.2s}
+    .nexo-nav-toggle:hover,.nexo-nav-toggle[aria-expanded="true"]{color:var(--text)}
+    .nexo-nav-toggle[aria-expanded="true"]{transform:rotate(180deg)}
     .nexo-menu{position:absolute;top:calc(100% + 14px);right:0;width:min(430px,calc(100vw - 30px));padding:12px;background:rgba(13,18,24,.98);border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5);backdrop-filter:blur(20px);z-index:70;display:none}
     .nexo-menu.open{display:block}
     .nexo-menu-head{padding:6px 10px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:end;gap:12px}
     .nexo-menu-title{font-weight:900;font-size:20px}
     .nexo-menu-sub{font-size:11px;color:var(--muted)}
-    .nexo-step{border-bottom:1px solid var(--line)}
+    .nexo-step{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);padding:15px 10px;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer}
     .nexo-step:last-child{border-bottom:0}
-    .nexo-step-btn{width:100%;border:0;background:transparent;color:var(--text);padding:15px 10px;display:flex;align-items:center;gap:12px;text-align:left}
-    .nexo-step-btn:hover{background:rgba(77,216,255,.045)}
+    .nexo-step:hover{background:rgba(77,216,255,.045)}
     .nexo-step-icon{width:34px;height:34px;border-radius:11px;background:rgba(77,216,255,.08);color:var(--cyan);display:grid;place-items:center;font-size:14px;flex:0 0 auto}
     .nexo-step-main{min-width:0;flex:1}
     .nexo-step-main strong{display:block;font-size:14px}
@@ -41,7 +45,7 @@
     .nexo-profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}
     .nexo-profile-name{font-size:12px;font-weight:800;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     @media(max-width:900px){.navlinks{gap:14px}.nexo-menu{right:-8px}}
-    @media(max-width:600px){.navlinks{gap:12px}.nexo-nav-account{font-size:12px}.nexo-menu{position:fixed;top:68px;left:12px;right:12px;width:auto;max-height:calc(100vh - 84px);overflow:auto}.nexo-profile-name{display:none}.nexo-profile{padding:5px}}
+    @media(max-width:600px){.navlinks{gap:12px}.nexo-nav-account-link{font-size:12px}.nexo-menu{position:fixed;top:68px;left:12px;right:12px;width:auto;max-height:calc(100vh - 84px);overflow:auto}.nexo-profile-name{display:none}.nexo-profile{padding:5px}}
   `;
   document.head.appendChild(style);
 
@@ -51,43 +55,46 @@
   menu.innerHTML=`
     <div class="nexo-menu-head">
       <div><div class="tag">MI NEXO</div><div class="nexo-menu-title">Tu centro de conexión.</div></div>
-      <div class="nexo-menu-sub">Todo lo personal, ordenado.</div>
+      <div class="nexo-menu-sub">Sesiones, contactos, invitaciones y ecosistema.</div>
     </div>
 
-    <button type="button" class="nexo-step-btn nexo-step" data-nexo-target="nexo33">
+    <button type="button" class="nexo-step" data-nexo-target="nexo33">
       <span class="nexo-step-icon">◌</span><span class="nexo-step-main"><strong>Sesiones</strong><span>Chats, conversaciones, actividad e historial.</span></span><span class="nexo-step-arrow">›</span>
     </button>
 
-    <button type="button" class="nexo-step-btn nexo-step" data-nexo-target="contactos">
+    <button type="button" class="nexo-step" data-nexo-target="contactos">
       <span class="nexo-step-icon">◎</span><span class="nexo-step-main"><strong>Contactos</strong><span>Tu red de personas conectadas.</span></span><span class="nexo-step-arrow">›</span>
     </button>
 
-    <button type="button" class="nexo-step-btn nexo-step" data-nexo-target="invitaciones">
+    <button type="button" class="nexo-step" data-nexo-target="invitaciones">
       <span class="nexo-step-icon">✉</span><span class="nexo-step-main"><strong>Invitaciones</strong><span>Salas e invitaciones pendientes.</span></span><span class="nexo-step-arrow">›</span>
     </button>
 
-    <button type="button" class="nexo-step-btn nexo-step" data-nexo-target="ecosistema">
+    <button type="button" class="nexo-step" data-nexo-target="ecosistema">
       <span class="nexo-step-icon">✦</span><span class="nexo-step-main"><strong>Ecosistema</strong><span>Work, Edu, Care y futuros espacios NEXO.</span></span><span class="nexo-step-arrow">›</span>
     </button>
   `;
   nav.appendChild(menu);
 
-  const btn=document.getElementById('nexoNavAccount');
-  const close=()=>{menu.classList.remove('open');btn?.setAttribute('aria-expanded','false')};
-  btn?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const open=!menu.classList.contains('open');menu.classList.toggle('open',open);btn.setAttribute('aria-expanded',String(open))});
+  const toggle=document.getElementById('nexoNavToggle');
+  const accountLink=nav.querySelector('.nexo-nav-account-link');
+  const close=()=>{menu.classList.remove('open');toggle?.setAttribute('aria-expanded','false')};
+  toggle?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const open=!menu.classList.contains('open');menu.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open))});
+  accountLink?.addEventListener('click',close);
   document.addEventListener('click',e=>{if(!nav.contains(e.target))close()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 
+  function go(target){
+    const el=document.getElementById(target);
+    if(!el)return;
+    close();
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+    if(history.replaceState)history.replaceState(null,'','#'+target);
+  }
+
   menu.querySelectorAll('[data-nexo-target]').forEach(item=>item.addEventListener('click',e=>{
     e.preventDefault();
-    const target=item.dataset.nexoTarget;
-    close();
-    if(typeof window.openNexoSection==='function'){
-      window.openNexoSection(target);
-      return;
-    }
-    const el=document.getElementById(target);
-    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    go(item.dataset.nexoTarget);
   }));
 
   function profileImageMarkup(){
@@ -113,7 +120,7 @@
     const markup=profileImageMarkup();
     auth.classList.add('nexo-profile');
     auth.innerHTML=`${markup}<span class="nexo-profile-name">${name.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>`;
-    auth.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();if(typeof window.openNexoSection==='function')window.openNexoSection('perfil');else document.getElementById('perfil')?.scrollIntoView({behavior:'smooth',block:'start'});};
+    auth.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();const el=document.getElementById('perfil');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});};
   }
 
   const observeNode=document.getElementById('sideName');
