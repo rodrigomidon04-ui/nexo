@@ -9,24 +9,42 @@
     else fn();
   }
 
+  function removeLegacyHeader(){
+    const advanced=document.getElementById('nexo33134');
+    if(!advanced) return;
+
+    // Remove ONLY the old 03.3.1 / 03.4 heading and its subtitle.
+    const head=advanced.querySelector(':scope > .container > .section-head, :scope > .section-head');
+    if(head){
+      head.remove();
+    }
+
+    // Keep the existing module content exactly as-is.
+    advanced.hidden=false;
+    advanced.style.display='block';
+  }
+
   function apply(){
     const centro=document.getElementById('dashboard');
     const advanced=document.getElementById('nexo33134');
     if(centro && advanced && advanced.parentElement===centro){
-      // 03 — Mi Centro: the module is part of the same section.
-      // Remove only the legacy 03.3.1 / 03.4 heading; preserve all content and functionality below it.
-      const head=advanced.querySelector('.section-head');
-      if(head){
-        head.style.display='none';
-        head.setAttribute('aria-hidden','true');
-      }
-      advanced.style.display='block';
-      advanced.hidden=false;
+      removeLegacyHeader();
     }
   }
 
   ready(()=>{
+    apply();
     setTimeout(apply,450);
-    setTimeout(apply,1800);
+    setTimeout(apply,1200);
+    setTimeout(apply,2200);
+
+    const observer=new MutationObserver(()=>{
+      const advanced=document.getElementById('nexo33134');
+      if(!advanced) return;
+      const head=advanced.querySelector(':scope > .container > .section-head, :scope > .section-head');
+      if(head) head.remove();
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+    setTimeout(()=>observer.disconnect(),15000);
   });
 })();
