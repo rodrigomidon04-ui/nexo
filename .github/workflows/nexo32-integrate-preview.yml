@@ -1,0 +1,35 @@
+name: NEXO 3.2 preview integration
+on:
+  push:
+    branches: [nexo-3.1.1-test]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    if: ${{ github.event.head_commit.message != 'NEXO 3.2: integrar perfil en preview fijo' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Integrar módulo 3.2
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8')
+          tag='<script src="/nexo32.js?v=3.2"></script>'
+          if tag not in t:
+              marker='</body>'
+              if marker not in t:
+                  raise SystemExit('No se encontró </body>')
+              t=t.replace(marker, tag+'\n'+marker, 1)
+          t=t.replace('<title>NEXO 3.1 · Tu conexión</title>','<title>NEXO 3.2 · Tu conexión</title>',1)
+          t=t.replace('NEXO 3.1 · tu conexión, tu Nexo','NEXO 3.2 · tu conexión, tu Nexo',1)
+          p.write_text(t,encoding='utf-8')
+          PY
+      - name: Publicar integración
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "NEXO 3.2: integrar perfil en preview fijo"
+          git push origin HEAD:nexo-3.1.1-test
