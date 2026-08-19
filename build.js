@@ -7,7 +7,7 @@ const scripts = [
   ['nexo32.js?v=3.2', '<script src="./nexo32.js?v=3.2"></script>'],
   ['nexo33.js?v=3.3', '<script src="./nexo33.js?v=3.3"></script>'],
   ['nexo33134.js?v=3.4', '<script src="./nexo33134.js?v=3.4"></script>'],
-  ['nexo-nav.js?v=3.3-nav', '<script src="./nexo-nav.js?v=3.3-nav"></script>'],
+  ['nexo-nav.js?v=3.3-nav2', '<script src="./nexo-nav.js?v=3.3-nav2"></script>'],
   ['nexo-layout.js?v=3.4-layout', '<script src="./nexo-layout.js?v=3.4-layout"></script>']
 ];
 
