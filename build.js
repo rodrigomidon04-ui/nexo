@@ -19,7 +19,8 @@ const scripts = [
   ['nexo-micentro-fix.js?v=4.5-micentro', '<script src="./nexo-micentro-fix.js?v=4.5-micentro"></script>'],
   ['nexo-sesiones-fix.js?v=4.6-sesiones', '<script src="./nexo-sesiones-fix.js?v=4.6-sesiones"></script>'],
   ['nexo-04-final-fix.js?v=4.8-mi-nexo', '<script src="./nexo-04-final-fix.js?v=4.8-mi-nexo"></script>'],
-  ['nexo-structure-final.js?v=5.2-structure', '<script src="./nexo-structure-final.js?v=5.2-structure"></script>']
+  ['nexo-structure-final.js?v=5.2-structure', '<script src="./nexo-structure-final.js?v=5.2-structure"></script>'],
+  ['nexo-mi-nexo-members-fix.js?v=1.0-members', '<script src="./nexo-mi-nexo-members-fix.js?v=1.0-members"></script>']
 ];
 
 for (const [marker, tag] of scripts) {
