@@ -9,7 +9,8 @@ const scripts = [
   ['nexo33134.js?v=3.4', '<script src="./nexo33134.js?v=3.4"></script>'],
   ['nexo-nav.js?v=3.3-nav4', '<script src="./nexo-nav.js?v=3.3-nav4"></script>'],
   ['nexo-layout.js?v=3.4-layout', '<script src="./nexo-layout.js?v=3.4-layout"></script>'],
-  ['nexo-nav-fix.js?v=3.4-navfix', '<script src="./nexo-nav-fix.js?v=3.4-navfix"></script>']
+  ['nexo-nav-fix.js?v=3.4-navfix', '<script src="./nexo-nav-fix.js?v=3.4-navfix"></script>'],
+  ['nexo-ux-fix.js?v=3.4-ux2', '<script src="./nexo-ux-fix.js?v=3.4-ux2"></script>']
 ];
 
 for (const [marker, tag] of scripts) {
