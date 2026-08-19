@@ -21,7 +21,8 @@ const scripts = [
   ['nexo-04-final-fix.js?v=4.8-mi-nexo', '<script src="./nexo-04-final-fix.js?v=4.8-mi-nexo"></script>'],
   ['nexo-structure-final.js?v=5.2-structure', '<script src="./nexo-structure-final.js?v=5.2-structure"></script>'],
   ['nexo-mi-nexo-members-fix.js?v=1.3-members', '<script src="./nexo-mi-nexo-members-fix.js?v=1.3-members"></script>'],
-  ['nexo-inline-mi-nexo.js?v=1.2-inline', '<script src="./nexo-inline-mi-nexo.js?v=1.2-inline"></script>']
+  ['nexo-inline-mi-nexo.js?v=1.2-inline', '<script src="./nexo-inline-mi-nexo.js?v=1.2-inline"></script>'],
+  ['nexo-identity-number-fix.js?v=1.0-identity', '<script src="./nexo-identity-number-fix.js?v=1.0-identity"></script>']
 ];
 
 for (const [marker, tag] of scripts) {
