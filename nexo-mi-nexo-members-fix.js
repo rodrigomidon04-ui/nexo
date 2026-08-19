@@ -1,48 +1,63 @@
-/* NEXO 04: keep Contacts, Invitations and Ecosystem inside Mi Nexo. */
+/* NEXO 04: keep Contacts, Invitations and Ecosystem immediately under their own entry. */
 (function(){
   'use strict';
   if(window.__NEXOMINEXOMEMBERS)return;
   window.__NEXOMINEXOMEMBERS=true;
 
-  const $=id=>document.getElementById(id);
+  function show(panel, button){
+    if(!panel || !button)return;
+    panel.hidden=false;
+    panel.style.display='block';
+    button.classList.add('active');
+    requestAnimationFrame(()=>panel.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}));
+  }
 
-  function center(el){
-    if(!el)return false;
-    el.hidden=false;
-    el.style.display='block';
-    requestAnimationFrame(()=>el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}));
-    return true;
+  function hideAll(card){
+    card.querySelectorAll('.nexo-mi-nexo-content').forEach(panel=>{
+      panel.hidden=true;
+      panel.style.display='none';
+      const button=card.querySelector(`[data-panel-target="${panel.dataset.content}"]`);
+      button?.classList.remove('active');
+    });
   }
 
   function prepare(){
-    const workspace=$('nexoWorkspace');
-    const card=$('nexoWorkspaceCard');
-    if(!workspace||!card)return;
+    const card=document.getElementById('nexoWorkspaceCard');
+    if(!card)return;
 
-    ['contactos','invitaciones','ecosistema'].forEach((id)=>{
-      const sec=$(id);
+    const map=['contactos','invitaciones','ecosistema'];
+    map.forEach(id=>{
+      const sec=document.getElementById(id);
       if(!sec)return;
 
-      let wrap=document.querySelector(`.nexo-mi-nexo-content[data-content="${id}"]`);
-      if(!wrap){
-        wrap=document.createElement('div');
-        wrap.className='nexo-mi-nexo-content';
-        wrap.dataset.content=id;
-        wrap.hidden=true;
-        wrap.style.display='none';
-        card.appendChild(wrap);
+      let panel=document.querySelector(`.nexo-mi-nexo-content[data-content="${id}"]`);
+      if(!panel){
+        panel=document.createElement('div');
+        panel.className='nexo-mi-nexo-content';
+        panel.dataset.content=id;
+        panel.hidden=true;
+        panel.style.display='none';
       }
 
-      if(sec.parentElement!==wrap)wrap.appendChild(sec);
+      if(sec.parentElement!==panel)panel.appendChild(sec);
       sec.hidden=false;
       sec.style.display='block';
       sec.style.margin='0';
       sec.querySelector('.section-head')?.setAttribute('style','display:none');
-      wrap.hidden=true;
-      wrap.style.display='none';
+
+      const button=card.querySelector(`[data-final-target="${id}"]`);
+      if(button){
+        panel.dataset.content=id;
+        button.dataset.panelTarget=id;
+        button.after(panel);
+      }else if(panel.parentElement!==card){
+        card.appendChild(panel);
+      }
+      panel.hidden=true;
+      panel.style.display='none';
     });
 
-    if(!$('nexo-mi-nexo-members-style')){
+    if(!document.getElementById('nexo-mi-nexo-members-style')){
       const s=document.createElement('style');
       s.id='nexo-mi-nexo-members-style';
       s.textContent=`
@@ -55,40 +70,35 @@
       document.head.appendChild(s);
     }
 
-    card.querySelectorAll('[data-final-target]').forEach(button=>{
-      if(button.dataset.membersFixBound==='1')return;
-      const target=button.dataset.finalTarget;
-      if(!['contactos','invitaciones','ecosistema'].includes(target))return;
-      button.dataset.membersFixBound='1';
-      button.addEventListener('click',(e)=>{
+    card.querySelectorAll('[data-panel-target]').forEach(button=>{
+      if(button.dataset.panelBound==='1')return;
+      button.dataset.panelBound='1';
+      button.addEventListener('click',e=>{
         e.preventDefault();
-        const wrap=document.querySelector(`.nexo-mi-nexo-content[data-content="${target}"]`);
-        if(!wrap)return;
-        card.querySelectorAll('.nexo-mi-nexo-content').forEach(w=>{w.hidden=true;w.style.display='none'});
-        wrap.hidden=false;
-        wrap.style.display='block';
-        center(wrap);
+        const target=button.dataset.panelTarget;
+        const panel=card.querySelector(`.nexo-mi-nexo-content[data-content="${target}"]`);
+        if(!panel)return;
+        hideAll(card);
+        button.after(panel);
+        show(panel,button);
       });
     });
 
-    document.querySelectorAll('#nexoFinalMenu [data-final-menu]').forEach(button=>{
-      const target=button.dataset.finalMenu;
-      if(!['contactos','invitaciones','ecosistema'].includes(target))return;
-      if(button.dataset.membersFixBound==='1')return;
-      button.dataset.membersFixBound='1';
-      button.addEventListener('click',(e)=>{
+    document.querySelectorAll('#nexoFinalMenu [data-final-menu]').forEach(menuButton=>{
+      const target=menuButton.dataset.finalMenu;
+      if(!map.includes(target) || menuButton.dataset.panelBound==='1')return;
+      menuButton.dataset.panelBound='1';
+      menuButton.addEventListener('click',e=>{
         e.preventDefault();
-        const wrap=document.querySelector(`.nexo-mi-nexo-content[data-content="${target}"]`);
-        if(!wrap)return;
-        card.querySelectorAll('.nexo-mi-nexo-content').forEach(w=>{w.hidden=true;w.style.display='none'});
-        wrap.hidden=false;
-        wrap.style.display='block';
-        center(wrap);
+        const button=card.querySelector(`[data-panel-target="${target}"]`);
+        const panel=card.querySelector(`.nexo-mi-nexo-content[data-content="${target}"]`);
+        if(!button||!panel)return;
+        hideAll(card);
+        button.after(panel);
+        show(panel,button);
       },true);
     });
   }
 
-  const boot=()=>setTimeout(prepare,2300);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
-  else boot();
+  setTimeout(prepare,2600);
 })();
