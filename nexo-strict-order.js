@@ -1,108 +1,96 @@
-/* NEXO strict visual order: only requested sections, no new content. */
+/* NEXO strict visual order: exact requested structure, preserve real modules. */
 (function(){
   'use strict';
   if(window.__NEXOSTRICTORDER)return; window.__NEXOSTRICTORDER=true;
 
   const $=id=>document.getElementById(id);
   const wait=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
-
-  function tag(sec,t){const e=sec?.querySelector('.section-head .tag');if(e)e.textContent=t;}
-  function title(sec,t){const e=sec?.querySelector('.section-head h2');if(e)e.innerHTML=t;}
-  function hide(sec){if(sec)sec.style.display='none';}
-  function move(sec,parent){if(sec&&parent)parent.appendChild(sec);}
+  const showCenter=el=>{if(!el)return;el.style.display='';el.hidden=false;el.scrollIntoView({behavior:'smooth',block:'center'});if(history.replaceState)history.replaceState(null,'','#'+el.id)};
+  const setTag=(el,v)=>{const x=el?.querySelector('.section-head .tag');if(x)x.textContent=v};
+  const setTitle=(el,v)=>{const x=el?.querySelector('.section-head h2');if(x)x.innerHTML=v};
 
   wait(()=>{
-    const salas=$('salas'), espacios=$('explorar'), centro=$('nexo33134'), chats=$('nexo33'), identidad=$('perfil');
-    const oldHist=$('historial');
+    const salas=$('salas'), espacios=$('explorar'), centro=$('nexo33134'), chats=$('nexo33'), identidad=$('perfil'), historial=$('historial'), dashboard=$('dashboard');
 
-    // Remove the old visible history block completely.
-    hide(oldHist);
+    // Exact requested visibility/order.
+    if(historial) historial.style.display='none';
+    if(dashboard) dashboard.style.display='none';
+    if(salas) setTag(salas,'01 — Salas');
+    if(espacios) setTag(espacios,'02 — Espacios');
+    if(centro){setTag(centro,'03 — Mi Centro');setTitle(centro,'Tu centro<br>de conexión.')}
+    if(chats){setTag(chats,'05 — Chats');setTitle(chats,'Conectá en<br>tiempo real.')}
+    if(identidad){setTag(identidad,'06 — Identidad');setTitle(identidad,'Tu perfil, tu NEXO.')}
 
-    if(salas) tag(salas,'01 — Salas');
-    if(espacios) tag(espacios,'02 — Espacios');
+    // Existing sections created by the previous layout are preserved and regrouped inside 04.
+    const contactos=$('contactos'), invitaciones=$('invitaciones'), ecosistema=$('ecosistema');
+    const ws=$('nexoWorkspace');
+    if(!ws||!centro)return;
 
-    // 03 — Mi Centro: the existing 03.3.1 / 03.4 module, unchanged in content.
-    if(centro){
-      tag(centro,'03 — Mi Centro');
-      title(centro,'Tu centro<br>de conexión.');
-    }
+    const headTag=ws.querySelector('.nexo-workspace-head .tag'); if(headTag)headTag.textContent='04 — Mi Nexo';
+    const headTitle=ws.querySelector('.nexo-workspace-head h2'); if(headTitle)headTitle.textContent='Conectividad';
+    const headP=ws.querySelector('.nexo-workspace-head p'); if(headP)headP.textContent='Sesiones, contactos, invitaciones y ecosistema.';
 
-    // 05 — Chats: the existing NEXO 3.3 module, unchanged in content.
-    if(chats){
-      tag(chats,'05 — Chats');
-      title(chats,'Conectá en<br>tiempo real.');
-    }
+    const container=ws.querySelector('.container');
+    const card=ws.querySelector('#nexoWorkspaceCard');
+    if(!container||!card)return;
 
-    // 06 — Identidad: the existing profile module, moved to the end.
-    if(identidad){
-      tag(identidad,'06 — Identidad');
-      title(identidad,'Tu perfil, tu NEXO.');
-    }
+    // Remove only the obsolete nested navigation panels; preserve the real sections by detaching them first.
+    const realSections=[contactos,invitaciones,ecosistema].filter(Boolean);
+    realSections.forEach(s=>s.remove());
+    card.innerHTML='';
 
-    // Rebuild ONLY the requested 04 — Mi Nexo panel from existing sections.
-    let ws=$('nexoWorkspace');
-    if(ws){
-      const head=ws.querySelector('.nexo-workspace-head .tag');
-      if(head)head.textContent='04 — Mi Nexo';
-      const p=ws.querySelector('.nexo-workspace-head p');
-      if(p)p.textContent='Conectividad';
-      const card=ws.querySelector('#nexoWorkspaceCard');
-      if(card){
-        // Hide previous session/chats/history material from Mi Nexo; only requested four entries remain.
-        card.querySelectorAll('.nexo-panel').forEach(panel=>{
-          const k=panel.dataset.panel;
-          if(k==='sesiones') panel.style.display='none';
-        });
-      }
-    } else {
-      // If workspace does not exist yet, create a minimal 04 panel.
-      const anchor=centro||espacios||salas;
-      if(anchor?.parentNode){
-        ws=document.createElement('section');ws.id='nexoWorkspace';
-        ws.innerHTML='<div class="container"><div class="section-head nexo-workspace-head"><div><div class="tag">04 — Mi Nexo</div><h2>Conectividad</h2></div></div><div class="nexo-workspace-card" id="nexoWorkspaceCard"></div></div>';
-        anchor.parentNode.insertBefore(ws,anchor.nextSibling);
-      }
-    }
+    const links=document.createElement('div'); links.className='nexo-strict-links';
+    links.innerHTML=`
+      <button type="button" class="nexo-strict-link" data-target="nexo33134"><b>◌ Sesiones</b><span>Conversaciones y actividad.</span><i>›</i></button>
+      <button type="button" class="nexo-strict-link" data-target="contactos"><b>◎ Contactos</b><span>Tu red de personas.</span><i>›</i></button>
+      <button type="button" class="nexo-strict-link" data-target="invitaciones"><b>✉ Invitaciones</b><span>Salas e invitaciones pendientes.</span><i>›</i></button>
+      <button type="button" class="nexo-strict-link" data-target="ecosistema"><b>✦ Ecosistema</b><span>Work, Edu, Care y futuros espacios NEXO.</span><i>›</i></button>`;
+    card.appendChild(links);
 
-    // Ensure 04 has the requested four entries only.
-    const card=$('nexoWorkspaceCard');
-    if(card && !card.dataset.strictBuilt){
-      card.dataset.strictBuilt='1';
-      card.innerHTML=`
-        <button type="button" class="nexo-strict-link" data-target="nexo33134"><b>◌ Sesiones</b><span>Conversaciones y actividad.</span><i>›</i></button>
-        <button type="button" class="nexo-strict-link" data-target="contactos"><b>◎ Contactos</b><span>Tu red de personas.</span><i>›</i></button>
-        <button type="button" class="nexo-strict-link" data-target="invitaciones"><b>✉ Invitaciones</b><span>Salas e invitaciones pendientes.</span><i>›</i></button>
-        <button type="button" class="nexo-strict-link" data-target="ecosistema"><b>✦ Ecosistema</b><span>Work, Edu, Care y futuros espacios NEXO.</span><i>›</i></button>`;
-    }
+    let content=ws.querySelector('#nexoStrictContent');
+    if(!content){content=document.createElement('div');content.id='nexoStrictContent';content.style.marginTop='18px';container.appendChild(content)}
+    content.innerHTML='';
 
-    if(card&&!document.getElementById('nexo-strict-style')){
-      const s=document.createElement('style');s.id='nexo-strict-style';s.textContent=`
-        #nexoWorkspace .nexo-workspace-head h2{font-size:clamp(38px,5vw,64px)}
+    // Contactos / Invitaciones / Ecosistema remain part of 04 and are opened from its four entries.
+    realSections.forEach(s=>{
+      const h=s.querySelector('.section-head'); if(h)h.style.display='none';
+      s.style.padding='0'; s.style.margin='0 0 18px';
+      s.style.display='none';
+      content.appendChild(s);
+    });
+
+    if(!document.getElementById('nexo-strict-style')){
+      const style=document.createElement('style');style.id='nexo-strict-style';style.textContent=`
+        #nexoWorkspace .nexo-workspace-head h2{font-size:clamp(38px,5vw,64px);line-height:.95;margin:8px 0}
         #nexoWorkspace .nexo-strict-link{width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);padding:18px 20px;display:flex;gap:14px;align-items:center;text-align:left;cursor:pointer}
-        #nexoWorkspace .nexo-strict-link:last-child{border-bottom:0}
         #nexoWorkspace .nexo-strict-link:hover{background:rgba(77,216,255,.045)}
-        #nexoWorkspace .nexo-strict-link b{width:140px;flex:0 0 140px}
+        #nexoWorkspace .nexo-strict-link b{width:150px;flex:0 0 150px}
         #nexoWorkspace .nexo-strict-link span{color:var(--muted);font-size:12px;flex:1}
         #nexoWorkspace .nexo-strict-link i{font-style:normal;color:var(--muted);font-size:18px}
-        @media(max-width:600px){#nexoWorkspace .nexo-strict-link{padding:16px}.nexo-strict-link b{width:110px!important;flex-basis:110px!important;font-size:13px}}
-      `;document.head.appendChild(s);
-      card.querySelectorAll('[data-target]').forEach(b=>b.addEventListener('click',()=>{
-        const t=$(b.dataset.target); if(!t)return; t.style.display=''; t.scrollIntoView({behavior:'smooth',block:'center'}); if(history.replaceState)history.replaceState(null,'','#'+t.id);
-      }));
+        #nexoStrictContent>section{display:none}
+        @media(max-width:600px){#nexoWorkspace .nexo-strict-link{padding:16px}.nexo-strict-link b{width:115px!important;flex-basis:115px!important;font-size:13px}}
+      `;document.head.appendChild(style);
     }
 
-    // Hide legacy profile section from any earlier layout copies; strict order uses the actual profile block only at the end.
-    hide(identidad===null?null:$('perfilLegacyCopy'));
+    links.querySelectorAll('[data-target]').forEach(btn=>btn.addEventListener('click',()=>{
+      const target=$(btn.dataset.target);
+      if(btn.dataset.target==='nexo33134'){
+        showCenter(centro);
+        return;
+      }
+      if(target){target.style.display='';target.hidden=false;target.scrollIntoView({behavior:'smooth',block:'center'});if(history.replaceState)history.replaceState(null,'','#'+target.id)}
+    }));
 
-    // Final DOM order: after main 01/02, 03 center, 04 workspace, 05 chats, 06 identity.
-    const root=salas?.parentNode;
-    if(root){
-      if(espacios)root.appendChild(espacios);
-      if(centro)root.appendChild(centro);
-      if(ws)root.appendChild(ws);
-      if(chats)root.appendChild(chats);
-      if(identidad)root.appendChild(identidad);
-      const footer=document.querySelector('footer'); if(footer)root.appendChild(footer);
+    // Keep exact top-level order: 01, 02, 03, 04, 05, 06.
+    const parent=salas?.parentNode;
+    if(parent){
+      parent.appendChild(salas);
+      parent.appendChild(espacios);
+      parent.appendChild(centro);
+      parent.appendChild(ws);
+      parent.appendChild(chats);
+      parent.appendChild(identidad);
+      const footer=document.querySelector('footer');if(footer)parent.appendChild(footer);
     }
   });
 })();
