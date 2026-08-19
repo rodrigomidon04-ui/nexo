@@ -1,4 +1,4 @@
-/* NEXO body organizer: Mi Nexo contains only Contacts, Invites and Ecosystem. */
+/* NEXO body organizer: Mi Nexo contains Sessions, Contacts, Invites and Ecosystem. */
 (function(){
   'use strict';
   if(window.__NEXOLAYOUT)return; window.__NEXOLAYOUT=true;
@@ -27,6 +27,8 @@
       #contactos .section-head,#invitaciones .section-head,#ecosistema .section-head{display:none}
       #contactos,#invitaciones,#ecosistema{padding:0!important}
       .nexo-inline-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);font-weight:900;margin:4px 0 10px}
+      .nexo-session-note{font-size:12px;color:var(--muted);line-height:1.5}
+      .nexo-session-link{margin-top:12px}
       @media(max-width:900px){.nexo-workspace-head{align-items:start;flex-direction:column}}
       @media(max-width:600px){#nexoWorkspace{padding:54px 0 76px}.nexo-panel-btn{padding:16px}.nexo-panel-body{padding:0 16px 18px}}
     `;
@@ -35,7 +37,7 @@
   function getSection(id){const el=qs(id);return el&&el.tagName==='SECTION'?el:null;}
   function createPanel(key,icon,title,desc,open){
     const wrap=document.createElement('div'); wrap.className='nexo-panel'; wrap.dataset.panel=key;
-    wrap.innerHTML=`<button type="button" class="nexo-panel-btn" aria-expanded="${open}"><span class="nexo-panel-icon">${icon}</span><span class="nexo-panel-copy"><strong>${title}</strong><span>${desc}</span></span><span class="nexo-panel-arrow">›</span></button><div class="nexo-panel-body${open?' open':''}"></div>`;
+    wrap.innerHTML=`<button type="button" class="nexo-panel-btn" aria-expanded="${open}"><span class="nexo-panel-icon">${icon}</span><span class="nexo-panel-copy"><strong>${title}</strong><span>${desc}</span></span><span class="nexo-panel-arrow">›</span></button><div class="nexo-panel-body${open?' open':''}></div>`;
     const btn=wrap.querySelector('.nexo-panel-btn'), body=wrap.querySelector('.nexo-panel-body');
     btn.addEventListener('click',()=>{const next=!body.classList.contains('open');body.classList.toggle('open',next);btn.setAttribute('aria-expanded',String(next));});
     return {wrap,body};
@@ -45,19 +47,32 @@
     const dashboard=qs('dashboard');
     if(!dashboard||qs('nexoWorkspace'))return;
     const mount=document.createElement('section'); mount.id='nexoWorkspace';
-    mount.innerHTML=`<div class="container"><div class="nexo-workspace-head"><div><div class="tag">04 — Mi NEXO</div><h2>Conectividad</h2></div><p class="muted">Contactos, invitaciones y ecosistema, organizados en un solo lugar.</p></div><div class="nexo-workspace-card" id="nexoWorkspaceCard"></div></div>`;
+    mount.innerHTML=`<div class="container"><div class="nexo-workspace-head"><div><div class="tag">04 — Mi Nexo</div><h2>Conectividad</h2></div><p class="muted">Sesiones, contactos, invitaciones y ecosistema, organizados en un solo lugar.</p></div><div class="nexo-workspace-card" id="nexoWorkspaceCard"></div></div>`;
     const card=mount.querySelector('#nexoWorkspaceCard');
+
+    const sesiones=createPanel('sesiones','◌','Sesiones','Conversaciones, actividad e historial.',false);
+    const sessionBody=sesiones.body;
+    sessionBody.innerHTML=`<div class="nexo-inline-label">SESIONES</div><div class="nexo-session-note">Accedé a tu centro de sesiones: chat, conversaciones, actividad e historial.</div><button type="button" class="btn primary nexo-session-link" id="nexoSessionOpen">Abrir Sesiones</button>`;
+    card.appendChild(sesiones.wrap);
+
     const contactos=createPanel('contactos','◎','Contactos','Tu red de personas y solicitudes.',false);
     const invitaciones=createPanel('invitaciones','✉','Invitaciones','Invitaciones recibidas y salas compartidas.',false);
     const ecosistema=createPanel('ecosistema','✦','Ecosistema','Work, Edu, Care y los espacios que iremos sumando.',false);
     [contactos,invitaciones,ecosistema].forEach(p=>card.appendChild(p.wrap));
+
     const contactosSec=getSection('contactos'); if(contactosSec){const label=document.createElement('div');label.className='nexo-inline-label';label.textContent='CONTACTOS';contactos.body.appendChild(label);contactos.body.appendChild(contactosSec);}
     const invSec=getSection('invitaciones'); if(invSec){const label=document.createElement('div');label.className='nexo-inline-label';label.textContent='INVITACIONES';invitaciones.body.appendChild(label);invitaciones.body.appendChild(invSec);}
     const ecoSec=getSection('ecosistema'); if(ecoSec){const label=document.createElement('div');label.className='nexo-inline-label';label.textContent='ECOSISTEMA';ecosistema.body.appendChild(label);ecosistema.body.appendChild(ecoSec);}
+
     dashboard.parentNode.insertBefore(mount,dashboard.nextSibling);
+
+    const openCentered=el=>{if(!el)return;el.hidden=false;el.style.display='';requestAnimationFrame(()=>el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'}));};
+    const openSession=()=>{const target=qs('nexo33134')||qs('dashboard');openCentered(target);if(target&&history.replaceState)history.replaceState(null,'','#'+target.id)};
+    qs('nexoSessionOpen')?.addEventListener('click',openSession);
+
     document.querySelectorAll('a[href="#contactos"],a[href="#invitaciones"],a[href="#ecosistema"]').forEach(a=>{
       if(a.dataset.nexoWorkspaceBound)return; a.dataset.nexoWorkspaceBound='1';
-      a.addEventListener('click',e=>{e.preventDefault();const href=a.getAttribute('href')||'';const panel=href==='#contactos'?'contactos':href==='#invitaciones'?'invitaciones':'ecosistema';const p=card.querySelector(`.nexo-panel[data-panel="${panel}"]`);if(!p)return;const b=p.querySelector('.nexo-panel-btn'),body=p.querySelector('.nexo-panel-body');body.classList.add('open');b.setAttribute('aria-expanded','true');mount.scrollIntoView({behavior:'smooth',block:'center'});});
+      a.addEventListener('click',e=>{e.preventDefault();const href=a.getAttribute('href')||'';const panel=href==='#contactos'?'contactos':href==='#invitaciones'?'invitaciones':'ecosistema';const p=card.querySelector(`.nexo-panel[data-panel="${panel}"]`);if(!p)return;const b=p.querySelector('.nexo-panel-btn'),body=p.querySelector('.nexo-panel-body');body.classList.add('open');b.setAttribute('aria-expanded','true');openCentered(p);});
     });
   });
 })();
