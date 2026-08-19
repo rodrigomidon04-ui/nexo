@@ -12,7 +12,7 @@ const scripts = [
   ['nexo33134.js?v=3.4', '<script src="./nexo33134.js?v=3.4"></script>'],
   ['nexo-ui-controller.js?v=1.1.1', '<script src="./nexo-ui-controller.js?v=1.1.1"></script>'],
   ['nexo-ui-runtime-fix.js?v=1.0.1', '<script src="./nexo-ui-runtime-fix.js?v=1.0.1"></script>'],
-  ['nexo-ui-final-adjustments.js?v=1.0.1', '<script src="./nexo-ui-final-adjustments.js?v=1.0.1"></script>'],
+  ['nexo-ui-final-adjustments.js?v=1.0.2', '<script src="./nexo-ui-final-adjustments.js?v=1.0.2"></script>'],
   ['nexo-ui-nav-alignment.js?v=1.0.0', '<script src="./nexo-ui-nav-alignment.js?v=1.0.0"></script>']
 ];
 
@@ -24,5 +24,8 @@ for (const [marker, tag] of scripts) {
     }
   }
 }
+
+// Replace an older cache-busted version of the same final-adjustments asset.
+html = html.replace(/\.\/nexo-ui-final-adjustments\.js\?v=1\.0\.1/g, './nexo-ui-final-adjustments.js?v=1.0.2');
 
 fs.writeFileSync(file, html);
