@@ -7,7 +7,8 @@ const scripts = [
   ['nexo-v9-assistant.js?v=9.0', '<script src="./nexo-v9-assistant.js?v=9.0"></script>'],
   ['nexo-v10-actions.js?v=10.0', '<script src="./nexo-v10-actions.js?v=10.0"></script>'],
   ['nexo-v11-voice.js?v=11.0', '<script src="./nexo-v11-voice.js?v=11.0"></script>'],
-  ['nexo-face-original.js?v=1.0', '<script src="./nexo-face-original.js?v=1.0"></script>']
+  ['nexo-face-original.js?v=1.0', '<script src="./nexo-face-original.js?v=1.0"></script>'],
+  ['nexo-floating-assistant.js?v=11.5', '<script src="./nexo-floating-assistant.js?v=11.5"></script>']
 ];
 
 for (const [marker, tag] of scripts) {
