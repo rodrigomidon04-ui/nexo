@@ -1,0 +1,34 @@
+name: NEXO 3.0 UI navigation fix
+on:
+  push:
+    branches: [nexo-3.0]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: ${{ github.event.head_commit.message != 'NEXO 3.0: agregar navegación y botón inicio aplicado' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Agregar navegación
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          t=p.read_text(encoding='utf-8')
+          if 'id="homeBtn"' not in t:
+              old='<div class="nav"><div class="logo">NEXO</div><div class="actions"><button class="btn" id="authBtn">Ingresar</button></div></div>'
+              new='<div class="nav"><div class="logo">NEXO</div><div class="actions"><button class="btn" id="homeBtn">Inicio</button><button class="btn" id="authBtn">Ingresar</button></div></div>'
+              t=t.replace(old,new)
+              old_js="$('\x27authBtn\x27').onclick=async()=>{"
+              new_js="$('\x27homeBtn\x27').onclick=()=>{window.scrollTo({top:0,behavior:\x27smooth\'});};$('\x27authBtn\x27').onclick=async()=>{"
+              t=t.replace(old_js,new_js)
+              p.write_text(t,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "NEXO 3.0: agregar navegación y botón inicio aplicado"
+          git push origin HEAD:nexo-3.0
