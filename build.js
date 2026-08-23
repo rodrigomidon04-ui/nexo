@@ -4,7 +4,8 @@ const file = path.join(process.cwd(), 'index.html');
 let html = fs.readFileSync(file, 'utf8');
 
 const scripts = [
-  ['nexo-v9-assistant.js?v=9.0', '<script src="./nexo-v9-assistant.js?v=9.0"></script>']
+  ['nexo-v9-assistant.js?v=9.0', '<script src="./nexo-v9-assistant.js?v=9.0"></script>'],
+  ['nexo-v10-actions.js?v=10.0', '<script src="./nexo-v10-actions.js?v=10.0"></script>']
 ];
 
 for (const [marker, tag] of scripts) {
